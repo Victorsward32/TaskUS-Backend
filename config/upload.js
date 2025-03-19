@@ -1,29 +1,26 @@
 import multer from "multer";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import cloudinary from "./cloudinaryConfig.js"; // Import Cloudinary config
 
-//Define storage fr upload files
-const storage = multer.diskStorage({
-    destination:function(req,file,cb){
-        cb(null,"uploads/");
+// 🟢 Storage for general uploads
+const storage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: "uploads", // Cloudinary folder
+        allowed_formats: ["jpg", "png", "jpeg", "gif"],
     },
-    filename: function(req,file,cb){
-        cb(null,Date.now()+"-"+file.originalname);
-    }
-})
-
-// Define storage for Activity
-const activityStorage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, "activityUploads/"); // Store files in uploads folder
-    },
-    filename:(req,file,cb)=>{
-        cb(null,Date.now()+"-"+ file.originalname);
-    }
 });
 
+// 🟢 Storage for activity uploads
+const activityStorage = new CloudinaryStorage({
+    cloudinary,
+    params: {
+        folder: "activityUploads", // Cloudinary folder
+        allowed_formats: ["jpg", "png", "jpeg", "gif"],
+    },
+});
 
-
-
-// Filter file types
+// 🟢 Filter file types
 const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith("image/")) {
         cb(null, true);
@@ -32,8 +29,5 @@ const fileFilter = (req, file, cb) => {
     }
 };
 
-export const  upload = multer({ storage, fileFilter });
-export const activityUploads = multer({ 
-    storage: activityStorage,  // should be "storage: activityStorage"
-    fileFilter 
-});
+export const upload = multer({ storage, fileFilter });
+export const activityUploads = multer({ storage: activityStorage, fileFilter });

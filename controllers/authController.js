@@ -48,31 +48,6 @@ export const registerUser = async (req,res)=>{
     }
 }
 
-/**
- * Destination   Login user & get token
- * Route   POST /api/auth/login
- */
-
-// export const loginUser= async (req,res)=>{
-//     const{username,password}=req.body;
-//     try {
-//         const user=await User.findOne({username});
-
-//         if(!user || !(await user.matchPassword(password))){
-
-//             return res.status(401).json({message:'Invalid Username or Password'})
-//         } 
-//         res.status(200).json({
-//             _id:user._id,
-//             username:user.username,
-//             email:user.email,
-//             token:generateToken({id:user._id})
-//         })
-//     } catch (error) {
-//         res.status(500).json({message:'Server error(authController-l',error:error.message})
-//         console.log(colors.red.bold(`auth controll Error:${error.message} `)); 
-//     }
-// }
 export const loginUser = async (req, res) => {
     const { username, password } = req.body;
     try {
@@ -176,12 +151,16 @@ export const updateProfilePhoto = async (req, res) => {
         console.log('uploads: ',user);
         
 
-        if (!user) {
-            return res.status(404).json({ message: "User not found" });
+        // if (!user) {
+        //     return res.status(404).json({ message: "User not found" });
+        // }
+        // 🟢 Ensure a file was uploaded
+        if (!req.file) {
+            return res.status(400).json({ message: "No image uploaded" });
         }
-
-        user.profilePhoto = req.file.path; // Save image path
+        user.profilePhoto = req.file.path; // 🟢 Cloudinary URL instead of local path
         await user.save();
+
 
         res.status(200).json({ message: "Profile photo updated", profilePhoto: user.profilePhoto });
     } catch (error) {
